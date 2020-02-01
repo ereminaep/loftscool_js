@@ -25,6 +25,7 @@ function map(array, fn) {
     for (let i = 0; i < array.length; i++) {
         newArray.push(fn(array[i], i, array));
     }
+
     return newArray;
 }
 
@@ -39,7 +40,7 @@ function reduce(array, fn, initial) {
 
     let start = 0;
 
-    if (typeof initial == "undefined") {
+    if (typeof initial == 'undefined') {
         initial = array[0];
         start = 1;
     }
@@ -62,10 +63,13 @@ function reduce(array, fn, initial) {
 function upperProps(obj) {
 
     let array = [];
+    let value;
 
     for (let key in obj) {
-        let value = key[0].toUpperCase() + key[0].slice(2);
-        array.push(value);
+        if (key) {
+            value = key[0].toUpperCase() + key[0].slice(2);
+            array.push(value);
+        }
     }
 
     return array;
@@ -80,16 +84,16 @@ function upperProps(obj) {
 function slice(array, from, to) {
 
     let newArray = [];
-    let start; //вычисляем номер символа, с которого начинаем копировать в зависимости от разных данных
-    let end; //которым заканчиваем
+    let start; // вычисляем номер символа, с которого начинаем копировать в зависимости от разных данных
+    let end; // которым заканчиваем
 
     // если не передали до куда копируем - копируем до конца
-    if (typeof to == "undefined") {
+    if (typeof to == 'undefined') {
         to = array.length;
     }
 
     // если не передали откуда копируем - копируем с начала
-    if (typeof from == "undefined") {
+    if (typeof from == 'undefined') {
         from = 0;
     }
 
@@ -130,7 +134,17 @@ function slice(array, from, to) {
  Функция принимает объект и должна вернуть Proxy для этого объекта
  Proxy должен перехватывать все попытки записи значений свойств и возводить это значение в квадрат
  */
-function createProxy(obj) {}
+function createProxy(obj) {
+    let squere = new Proxy(obj, {
+        get(target, prop) {
+            if (prop in target) {
+                return target[prop] * target[prop];
+            }
+        }
+    });
+
+    return squere;
+}
 
 export {
     forEach,
