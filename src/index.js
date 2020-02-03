@@ -63,11 +63,11 @@ function reduce(array, fn, initial) {
 function upperProps(obj) {
 
     let array = [];
-    let value;
 
     for (let key in obj) {
         if (key) {
-            value = key[0].toUpperCase() + key[0].slice(2);
+            let value = key[0].toUpperCase() + key[0].slice(2);
+
             array.push(value);
         }
     }
@@ -102,10 +102,12 @@ function slice(array, from, to) {
         to = array.length;
     }
 
+    // ограничиваем зону поиска при вводе значений вне диапазона
     if (from < -array.length) {
         from = 0;
     }
 
+    // предусмотрим различные варианты вычисления значений от и до для разных ситуаций
     if ((from >= 0) && (to >= 0)) {
         start = from;
         end = to;
