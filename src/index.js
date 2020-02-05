@@ -22,7 +22,12 @@ function isAllTrue(array, fn) {
 
     let result = true;
 
-    if ((!Array.isArray(array)) || (array.length == 0)) {
+    if (array.length == 0) {
+        throw 'empty array';
+    }
+
+    // проверка через прототипы
+    if (!(Object.prototype.toString.call(array) == '[object Array]')) {
         throw 'empty array';
     }
 
@@ -61,7 +66,12 @@ function isSomeTrue(array, fn) {
 
     let result = false;
 
-    if ((!Array.isArray(array)) || (array.length == 0)) {
+    if (array.length == 0) {
+        throw 'empty array';
+    }
+
+    // через принадлежность к классу
+    if (!(array instanceof Array)) {
         throw 'empty array';
     }
 
