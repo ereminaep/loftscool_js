@@ -119,20 +119,15 @@ function deleteTextNodes(where) {
    должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
-    debugger;
-    for (let prop of where.childNodes) {
-        console.log(prop);
-        if (prop.nodeType == 3) {
-            prop.remove();
-        } else {
-            deleteTextNodesRecursive(prop);
+
+    for (let child of where.childNodes) {
+        if (child.nodeType == 3) {
+            child.textContent = '';
+        } else if (child.nodeType == 1) {
+            deleteTextNodesRecursive(child);
         }
     }
 }
-
-var div = document.createElement('div');
-div.innerHTML = '<span> <div> <b>привет</b> </div> <p>loftchool</p> !!!</span>';
-deleteTextNodesRecursive(div);
 
 /*
  Задание 7 *:
@@ -154,7 +149,45 @@ deleteTextNodesRecursive(div);
      texts: 3
    }
  */
-function collectDOMStat(root) {}
+function collectDOMStat(root) {
+    let data = {
+        tags: {},
+        classes: {},
+        texts: 0
+    };
+
+    let result = function(root) {
+        for (let child of root.childNodes) {
+            if (child.nodeType == 3) {
+                data.texts++;
+            } else if (child.nodeType == 1) {
+
+                // работаем с тэгами
+                let tag = child.tagName;
+                if (tag in data.tags) {
+                    data.tags[tag]++;
+                } else {
+                    data.tags[tag] = 1;
+                }
+
+                // работаем с классами
+                for (let item of child.classList) {
+                    if (item in data.classes) {
+                        data.classes[item]++;
+                    } else {
+                        data.classes[item] = 1;
+                    }
+                }
+
+                result(child);
+            }
+        }
+    }
+
+    result(root);
+
+    return data;
+}
 
 /*
  Задание 8 *:
