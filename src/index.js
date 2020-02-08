@@ -12,7 +12,9 @@
  */
 function createDivWithText(text) {
     let div = document.createElement('div');
+
     div.textContent = text;
+
     return div;
 }
 
@@ -164,6 +166,7 @@ function collectDOMStat(root) {
 
                 // работаем с тэгами
                 let tag = child.tagName;
+
                 if (tag in data.tags) {
                     data.tags[tag]++;
                 } else {
@@ -221,7 +224,40 @@ function collectDOMStat(root) {
      nodes: [div]
    }
  */
-function observeChildNodes(where, fn) {}
+
+function observeChildNodes(where, fn) {
+
+    let observer = new MutationObserver(mutationRecords => {
+        let result = {
+            type: '',
+            nodes: []
+        }
+
+        for (let record of mutationRecords) {
+            if (record.addedNodes.length > 0) {
+                result.type = 'insert';
+
+                for (let item of record.addedNodes) {
+                    result.nodes.push(item);
+                }
+
+            } else if (record.removedNodes.length > 0) {
+                for (let item of record.removedNodes) {
+                    result.nodes.push(item);
+                }
+                result.type = 'remove';
+            }
+        }
+
+        fn(result);
+    });
+
+    observer.observe(where, {
+        childList: true, // наблюдать за непосредственными детьми
+        subtree: true // и более глубокими потомками
+    });
+
+}
 
 export {
     createDivWithText,
