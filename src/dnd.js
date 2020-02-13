@@ -27,6 +27,25 @@ const homeworkContainer = document.querySelector('#homework-container');
    homeworkContainer.appendChild(newDiv);
  */
 function createDiv() {
+
+    let div = document.createElement('div');
+    let r = Math.floor(Math.random() * (256));
+    let g = Math.floor(Math.random() * (256));
+    let b = Math.floor(Math.random() * (256));
+    let c = '#' + r.toString(16) + g.toString(16) + b.toString(16);
+
+    div.style.backgroundColor = c;
+    div.className = 'draggable-div';
+
+    div.style.width = Math.floor(Math.random() * (window.innerWidth)) + 'px';
+    div.style.height = Math.floor(Math.random() * (window.innerHeight)) + 'px';
+
+    div.style.left = Math.floor(Math.random() * (window.innerWidth)) + 'px';
+    div.style.top = Math.floor(Math.random() * (window.innerHeight)) + 'px';
+
+    div.style.zIndex = 100;
+
+    return div;
 }
 
 /*
@@ -37,7 +56,37 @@ function createDiv() {
    homeworkContainer.appendChild(newDiv);
    addListeners(newDiv);
  */
+
+function moveAt(e, item) {
+    item.style.left = e.pageX - item.offsetWidth / 2 + 'px';
+    item.style.top = e.pageY - item.offsetHeight / 2 + 'px';
+}
+
 function addListeners(target) {
+    target.parentNode.onmousedown = function(e) {
+
+        if (e.target.className == 'draggable-div') {
+
+            let item = e.target; // блок который перетаскиваем в конкретный момент
+
+            item.style.position = 'absolute';
+
+            item.style.zIndex = 100;
+
+            moveAt(e, item);
+            this.appendChild(item);
+
+            document.onmousemove = function(e) {
+                moveAt(e, item);
+            }
+
+            item.onmouseup = function() {
+                document.onmousemove = null;
+                item.onmouseup = null;
+            }
+        }
+    }
+
 }
 
 let addDivButton = homeworkContainer.querySelector('#addDiv');
