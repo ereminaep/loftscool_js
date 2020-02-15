@@ -32,25 +32,20 @@
    homeworkContainer.appendChild(newDiv);
  */
 
-
-
-function delete_cookie(cookie_name) {
-    var cookie_date = new Date(); // Текущая дата и время
-    cookie_date.setTime(cookie_date.getTime() - 1);
-    document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
-}
-
-
 // функция работы с таблицей куков (или кук)
 function cookieEditor(listTable) {
     let editor = {};
 
-    //превращаем таблицу с куками в массив с объектами. с ключами и значениями
+    // превращаем таблицу с куками в массив с объектами. с ключами и значениями
     editor.parserCookie = function() {
         let objectCookie = [];
         let key = 0;
 
-        for (let item of document.cookie.split(';')) {
+        if (document.cookie == '') {
+            return objectCookie;
+        }
+
+        for (let item of document.cookie.split('; ')) {
 
             let [name, value] = [item.split('=')[0], item.split('=')[1]];
 
@@ -68,6 +63,7 @@ function cookieEditor(listTable) {
     // метод делает строку и кладет в нее все, что есть в массиве аргументов. в массиве аргументов пары вида ключ, значение
     editor.makeRow = function(array, key) {
         let tr = document.createElement('tr');
+
         for (let item of array) {
             let element = document.createElement(item.name);
 
@@ -76,6 +72,7 @@ function cookieEditor(listTable) {
             tr.append(element);
         }
         tr.dataset.id = key;
+
         return tr;
     }
 
@@ -85,6 +82,7 @@ function cookieEditor(listTable) {
         listTable.innerHTML = '';
         let cookie = this.parserCookie();
         let key = 0;
+
         for (let item of cookie) {
 
             let tr = this.makeRow([{
@@ -106,23 +104,24 @@ function cookieEditor(listTable) {
     // добавление в таблицу
     editor.addInCookieTable = function(name, value) {
         document.cookie = name + '=' + value;
-        this.createCookieTable();
     }
 
     // удаление из таблицы
     editor.removeInCookieTable = function(name) {
         let cookieDate = new Date(); // Текущая дата и время
+
         cookieDate.setTime(cookieDate.getTime() - 1);
-        document.cookie = name += "=; expires=" + cookieDate.toGMTString();
-        this.createCookieTable();
+        document.cookie = name += '=; expires=' + cookieDate.toGMTString();
     }
 
     // фильтрация по полю
     editor.filterCookieTable = function(filterValue) {
         let tdCollection = listTable.querySelectorAll('tr');
+
         for (let item of tdCollection) {
-            if ((item.childNodes[0].textContent.indexOf(filterNameInput.value) == -1) && (item.childNodes[1].textContent.indexOf(filterNameInput.value) == -1)) {
-                item.innerHTML = '';
+            if ((item.childNodes[0].textContent.indexOf(filterValue) == -1) &&
+                (item.childNodes[1].textContent.indexOf(filterValue) == -1)) {
+                item.remove();
             }
         }
     }
@@ -150,10 +149,14 @@ filterNameInput.addEventListener('keyup', function() {
 
 addButton.addEventListener('click', () => {
     editor.addInCookieTable(addNameInput.value, addValueInput.value);
+    editor.createCookieTable();
+    editor.filterCookieTable(filterNameInput.value);
 });
 
 listTable.addEventListener('click', (e) => {
     if (e.target.tagName == 'BUTTON') {
         editor.removeInCookieTable(e.target.parentNode.firstChild.textContent);
+        editor.createCookieTable();
+        editor.filterCookieTable(filterNameInput.value);
     }
 });
