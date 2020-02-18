@@ -37,77 +37,96 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 
+/*языковые данные*/
+const LOAD = 'Загрузка...';
+const RELOAD = 'Повторить загрузку';
+const DATA = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json';
+let townsList = [];
+
+//сортировка
 function sortByAsc(arr) {
     arr.sort((a, b) => a.name > b.name ? 1 : -1);
 }
 
+//загрузка городов
 function loadTowns() {
     let myPromise = new Promise(async function(resolve, rejected) {
-        let response = await fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
-        let towns = await response.json();
-        sortByAsc(towns);
-        resolve(towns);
+        try {
+            let response = await fetch(DATA);
+            let towns = await response.json();
+            sortByAsc(towns);
+            makeTownList(towns);
+            resolve(towns);
+            townsList = towns;
+            loadingBlock.style.display = 'none';
+            filterBlock.style.display = 'block';
+            filterResult.style.display = 'none';
+            document.querySelector('button').remove();
+
+        } catch {
+            rejected();
+        }
+
     });
 
     return myPromise;
 }
 
-/*
- Функция должна проверять встречается ли подстрока chunk в строке full
- Проверка должна происходить без учета регистра символов
-
- Пример:
-   isMatching('Moscow', 'moscow') // true
-   isMatching('Moscow', 'mosc') // true
-   isMatching('Moscow', 'cow') // true
-   isMatching('Moscow', 'SCO') // true
-   isMatching('Moscow', 'Moscov') // false
- */
+// проверка на вхождение 
 function isMatching(full, chunk) {
 
     if (full.toLowerCase().indexOf(chunk.toLowerCase()) == -1) {
         return false;
     }
+
     return true;
 }
 
-/* Блок с надписью "Загрузка" */
-const loadingBlock = homeworkContainer.querySelector('#loading-block');
-/* Блок с текстовым полем и результатом поиска */
-const filterBlock = homeworkContainer.querySelector('#filter-block');
-/* Текстовое поле для поиска по городам */
-const filterInput = homeworkContainer.querySelector('#filter-input');
-/* Блок с результатами поиска */
-const filterResult = homeworkContainer.querySelector('#filter-result');
-
-
-loadTowns().then(function(towns) {
-
-    loadingBlock.style.display = 'none';
-    filterBlock.style.display = 'block';
+// построение блока с городами
+function makeTownList(towns) {
 
     towns.reduce(function(previousValue, currentValue, index, array) {
         let div = document.createElement('div');
-
         div.textContent = currentValue.name;
         filterResult.append(div);
     });
+}
 
-})
+function reloadTownList(towns) {
+    let button = document.createElement('button');
+    button.textContent = RELOAD;
+    homeworkContainer.append(button);
+    button.onclick = loadTowns;
+}
+
+const loadingBlock = homeworkContainer.querySelector('#loading-block'); /* Блок с надписью "Загрузка" */
+const filterBlock = homeworkContainer.querySelector('#filter-block'); /* Блок с текстовым полем и результатом поиска */
+const filterInput = homeworkContainer.querySelector('#filter-input'); /* Текстовое поле для поиска по городам */
+const filterResult = homeworkContainer.querySelector('#filter-result'); /* Блок с результатами поиска */
+
+loadTowns().then(function(towns) {
+    loadingBlock.style.display = 'none';
+    filterBlock.style.display = 'block';
+}, function(towns) {
+    reloadTownList(towns);
+});
 
 filterInput.addEventListener('keyup', function() {
-
-    if (filterInput.value == '') {
+    filterResult.innerHTML = '';
+    makeTownList(townsList);
+    if (filterInput.value !== '') {
+        filterResult.style.display = 'block';
+        let townList = filterResult.querySelectorAll('div');
+        for (let item of townList) {
+            if (!isMatching(item.textContent, filterInput.value)) {
+                item.remove();
+            }
+        }
+    } else {
         filterResult.innerHTML = '';
     }
-
-    let townList = filterResult.querySelectorAll('div');
-    for (let item of townList) {
-        if (!isMatching(item.textContent, filterInput.value)) {
-            item.remove();
-        }
-    }
 });
+
 
 export {
     loadTowns,
